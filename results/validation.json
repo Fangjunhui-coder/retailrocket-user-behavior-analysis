@@ -1,0 +1,25 @@
+{
+  "fixture_checks": [
+    "same-timestamp order",
+    "cart before view",
+    "cross-item vs same-item",
+    "exact duplicate",
+    "30-minute session boundary",
+    "immature cohort exclusion"
+  ],
+  "independent_pandas": {
+    "raw_rows": 2756101,
+    "clean_rows": 2755641,
+    "funnel": [
+      1404179,
+      32934,
+      9952
+    ],
+    "retention_cells_checked": 169,
+    "eligible_7d_visitors": 1348273,
+    "buyers_7d": 10165,
+    "sessions_checked": 1761675,
+    "products_checked": 12
+  },
+  "status": "passed"
+}

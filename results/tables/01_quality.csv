@@ -1,0 +1,2 @@
+raw_rows,invalid_rows,exact_duplicates,clean_rows,visitors,items,orders,first_event_utc,last_event_utc,views,carts,transaction_lines,unexpected_transaction_ids,visitor_timestamp_tie_groups
+2756101,0,460,2755641,1407580,235061,17672,2015-05-03 03:00:04.384,2015-09-18 02:59:47.788,2664218,68966,22457,0,2143

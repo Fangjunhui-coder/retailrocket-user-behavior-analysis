@@ -1,0 +1,12 @@
+{
+  "publisher": "RetailRocket",
+  "source_url": "https://www.kaggle.com/datasets/retailrocket/ecommerce-dataset",
+  "license": "CC BY-NC-SA 4.0",
+  "license_verified_on": "2026-10-15",
+  "source_filename": "events.csv",
+  "source_csv_sha256": "3745aa83238b1e6d44d8fda209807899f420084398f94ddf745f3cbcfecbf9e7",
+  "bundled_gzip_sha256": "01c7bbc9c4d7b6914b64359a9cbc4f32378be7ee8a36730f4d3dc12568201331",
+  "reference_repository": "https://github.com/jacobmackey01/product-funnel-activation-sql",
+  "reference_commit": "afdc104d1381cfc823f609d1ae1111e429945775",
+  "relationship": "Research questions and metric boundaries referenced; code independently authored; results independently executed."
+}

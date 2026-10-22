@@ -1,0 +1,69 @@
+{
+  "source_url": "https://www.kaggle.com/datasets/retailrocket/ecommerce-dataset",
+  "download_url": "https://www.kaggle.com/api/v1/datasets/download/retailrocket/ecommerce-dataset",
+  "input_file": "events.csv.gz",
+  "input_sha256": "01c7bbc9c4d7b6914b64359a9cbc4f32378be7ee8a36730f4d3dc12568201331",
+  "input_bytes": 33590667,
+  "executed_at_utc": "2026-10-22T02:23:09.220103+00:00",
+  "python": "3.12.14",
+  "duckdb": "1.5.6",
+  "timezone": "UTC",
+  "queries": [
+    {
+      "sql": "sql/01_quality.sql",
+      "sha256": "fcbf50b691743c96e8bac304ed9b2ab128f48595310f43e1e5da08ffbd6d7a1d",
+      "result_rows": 1,
+      "output": "results/tables/01_quality.csv"
+    },
+    {
+      "sql": "sql/02_funnel.sql",
+      "sha256": "0dd43fa656378b4d087b1ebf10011d02682c9e88716b37f99d55aa0696efa04e",
+      "result_rows": 3,
+      "output": "results/tables/02_funnel.csv"
+    },
+    {
+      "sql": "sql/03_funnel_sensitivity.sql",
+      "sha256": "587f69c2748f7e1e301db327afde54c12d09b3ac95952b5d92a915b29cb19204",
+      "result_rows": 3,
+      "output": "results/tables/03_funnel_sensitivity.csv"
+    },
+    {
+      "sql": "sql/04_sessions.sql",
+      "sha256": "1e2ec2d32d057ba430f8763e75b924ecac9b07555bd2ffab9a216f50d5308c7f",
+      "result_rows": 2,
+      "output": "results/tables/04_sessions.csv"
+    },
+    {
+      "sql": "sql/05_retention.sql",
+      "sha256": "683f6e103387b17c810a95868ceeecc0aad429d1d2f92f853affd48a05937493",
+      "result_rows": 169,
+      "output": "results/tables/05_retention.csv"
+    },
+    {
+      "sql": "sql/06_activation.sql",
+      "sha256": "3a3b012dc03f2a468b3a98441173bd1236a5a86788969d32ca256f1be295b5a7",
+      "result_rows": 1,
+      "output": "results/tables/06_activation.csv"
+    },
+    {
+      "sql": "sql/07_products.sql",
+      "sha256": "540e7a41fea72bc4a13b6711d9c295457449ecf793b9476b797bec0f5ee00212",
+      "result_rows": 12,
+      "output": "results/tables/07_products.csv"
+    },
+    {
+      "sql": "sql/08_profiles.sql",
+      "sha256": "a8876ff57f9916d4161a1c0a218d60ddd078cadb0e1f96075ffeb7760ce7258a",
+      "result_rows": 4,
+      "output": "results/tables/08_profiles.csv"
+    },
+    {
+      "sql": "sql/09_activity_sensitivity.sql",
+      "sha256": "da7c7a1fb76e11177ba1f93e0c1d87990c5723daedf1db4743f5d95a1647e8d6",
+      "result_rows": 2,
+      "output": "results/tables/09_activity_sensitivity.csv"
+    }
+  ],
+  "checks": "reconciliation; nested funnel; retention bounds; week-zero retention",
+  "seconds": 3.08
+}

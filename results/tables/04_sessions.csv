@@ -1,0 +1,3 @@
+segment,sessions,distinct_visitors,viewing_sessions,ordered_cart_sessions,ordered_buy_sessions,purchasing_sessions,ordered_conversion_pct,any_purchase_pct,mean_viewed_items
+first_observed,1407580,1407580,1403730,24857,6060,7524,0.4317069521916608,0.5345344491964933,1.2479823526904332
+returning_observed,354095,181633,352051,11818,4661,6773,1.323955904116165,1.9127635239130742,1.6214264533529137
