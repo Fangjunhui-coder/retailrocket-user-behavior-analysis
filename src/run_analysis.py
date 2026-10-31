@@ -28,6 +28,19 @@ def run(data_path, db_path=None):
             print('Prepared cleaned events, visitors and sessions',flush=True)
             continue
         frame=result.df()
+        if path.stem=='10_metric_tree':
+            collisions=con.execute("SELECT count(*) FROM (SELECT transaction_id FROM events WHERE event_name='transaction' GROUP BY transaction_id HAVING count(DISTINCT visitor_id)>1)").fetchone()[0]
+            if collisions:
+                raise ValueError(f'{collisions} transaction IDs belong to multiple visitors; tree would not reconcile')
+            for col in ['buyer_reconciliation','segment_reconciliation','order_reconciliation','funnel_reconciliation','frequency_reconciliation']:
+                assert frame[col].abs().le(1e-7).all(), col
+            distinct_orders=con.execute("SELECT count(DISTINCT transaction_id) FROM events WHERE event_name='transaction'").fetchone()[0]
+            assert frame.iloc[0]['orders']==distinct_orders
+            weekly=con.execute('SELECT * EXCLUDE(scope) FROM metric_tree_weekly ORDER BY week_start').df()
+            weekly.to_csv(tables/'11_metric_tree_weekly.csv',index=False)
+            for col in ['buyer_reconciliation','segment_reconciliation','order_reconciliation','funnel_reconciliation','frequency_reconciliation','decomposition_reconciliation']:
+                assert weekly[col].dropna().abs().le(1e-7).all(), col
+            query_receipts.append({'sql':'sql/10_metric_tree.sql','output':'results/tables/11_metric_tree_weekly.csv','result_rows':len(weekly)})
         frame.to_csv(tables/f'{path.stem}.csv',index=False)
         query_receipts.append({'sql':str(path.relative_to(ROOT)),'sha256':sha256(path),'result_rows':len(frame),'output':f'results/tables/{path.stem}.csv'})
         print(f'{path.stem}: {len(frame)} result rows',flush=True)
@@ -47,7 +60,7 @@ def run(data_path, db_path=None):
        'input_sha256':sha256(data_path),'input_bytes':data_path.stat().st_size,
        'executed_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
        'python':platform.python_version(),'duckdb':duckdb.__version__,'timezone':'UTC',
-       'queries':query_receipts,'checks':'reconciliation; nested funnel; retention bounds; week-zero retention',
+       'queries':query_receipts,'checks':'quality; nested funnel; retention bounds; metric-tree identities and weekly decomposition; transaction ID uniqueness',
        'seconds':round(time.perf_counter()-start,2)}
     (ROOT/'results/provenance.json').write_text(json.dumps(provenance,ensure_ascii=False,indent=2))
     con.close()

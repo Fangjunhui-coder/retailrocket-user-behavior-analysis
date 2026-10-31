@@ -32,6 +32,51 @@ def fixture_checks():
     assert cohort.cohort_size.iloc[0]==4
     return ['same-timestamp order','cart before view','cross-item vs same-item','exact duplicate','30-minute session boundary','immature cohort exclusion']
 
+def metric_tree_checks(clean):
+    """Rebuild each scope using pandas; compare counts, rates and effects to SQL."""
+    import math
+    def counts(part):
+        view=part[part.event=='view'].groupby('visitorid',observed=True).timestamp.min()
+        cart=part[part.event=='addtocart'].join(view.rename('view_time'),on='visitorid')
+        cart=cart[cart.timestamp>cart.view_time].groupby('visitorid',observed=True).timestamp.min()
+        buy=part[part.event=='transaction'].join(cart.rename('cart_time'),on='visitorid')
+        strict=buy.loc[buy.timestamp>buy.cart_time,'visitorid'].nunique()
+        tx=part[part.event=='transaction']
+        assert tx.groupby('transactionid',observed=True).visitorid.nunique().le(1).all()
+        orders=tx.groupby('visitorid',observed=True).transactionid.nunique()
+        n=len(orders); repeat=orders[orders>1]
+        v=len(view); c=len(cart); one=int((orders==1).sum()); rep=len(repeat)
+        return dict(viewers=v,cart_visitors=c,strict_buyers=strict,buyers=n,
+            other_buyers=n-strict,single_buyers=one,repeat_buyers=rep,
+            repeat_orders=int(repeat.sum()),orders=int(orders.sum()),
+            cart_rate=c/v if v else 0, purchase_rate=strict/c if c else 0,
+            orders_per_buyer=orders.sum()/n if n else 0,
+            repeat_share=rep/n if n else 0,repeat_extra_orders=repeat.mean()-1 if rep else 0)
+    def compare(actual, expected):
+        for key, value in expected.items():
+            assert math.isclose(float(actual[key]),float(value),rel_tol=1e-9,abs_tol=1e-7), (key,actual[key],value)
+    total=counts(clean)
+    compare(pd.read_csv(ROOT/'results/tables/10_metric_tree.csv').iloc[0],total)
+    weeks=pd.read_csv(ROOT/'results/tables/11_metric_tree_weekly.csv',parse_dates=['week_start'])
+    groups={week: part for week,part in clean.groupby('week',observed=True)}
+    last=None
+    for _,row in weeks.iterrows():
+        x=counts(groups[row.week_start]); compare(row,x)
+        if bool(row.comparable):
+            assert last is not None
+            # Independent sequential replacement of the six factors.
+            def formula(v,a,b,n,s,f): return (v*a*b+n)*(1+s*f)
+            old=[last[k] for k in ['viewers','cart_rate','purchase_rate','other_buyers','repeat_share','repeat_extra_orders']]
+            new=[x[k] for k in ['viewers','cart_rate','purchase_rate','other_buyers','repeat_share','repeat_extra_orders']]
+            vals=old.copy(); baseline=formula(*vals); effects=[]
+            for i in range(6):
+                vals[i]=new[i]; next_value=formula(*vals); effects.append(next_value-baseline); baseline=next_value
+            names=['traffic_effect','cart_rate_effect','purchase_rate_effect','other_buyer_effect','repeat_share_effect','repeat_frequency_effect']
+            compare(row,dict(zip(names,effects)))
+            assert math.isclose(sum(effects),x['orders']-last['orders'],abs_tol=1e-7)
+        last=x
+    return {'overall':total,'weeks_checked':len(weeks),'comparable_weeks_checked':int(weeks.comparable.fillna(False).sum())}
+
 def independent_checks(path):
     data=pd.read_csv(path,dtype={'timestamp':'int64','visitorid':'int64','event':'category','itemid':'int64','transactionid':'Int64'})
     # All input records pass the required-field/domain checks in this dataset, verify rather than assume.
@@ -104,7 +149,8 @@ def independent_checks(path):
         assert row.cart_visitors==pc.get(row.item_id,0)
         assert row.buying_visitors==pb.get(row.item_id,0)
         assert row.buyers_after_view==pa.get(row.item_id,0)
-    return {'raw_rows':len(data),'clean_rows':len(clean),'funnel':funnel.visitors.tolist(),
+    metric_tree=metric_tree_checks(clean)
+    return {'metric_tree':metric_tree,'raw_rows':len(data),'clean_rows':len(clean),'funnel':funnel.visitors.tolist(),
       'retention_cells_checked':len(result),'eligible_7d_visitors':len(eligible),'buyers_7d':int(buy_within.sum()),
       'sessions_checked':len(summary),'products_checked':len(products)}
 

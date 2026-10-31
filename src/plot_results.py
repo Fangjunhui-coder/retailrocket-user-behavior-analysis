@@ -84,10 +84,49 @@ def products():
     fig.subplots_adjust(left=.13,right=.96,bottom=.18,top=.88,wspace=.22)
     return fig
 
-PLOTS={'funnel':funnel,'sessions':sessions,'retention':retention,'products':products}
+def metric_tree():
+    r=table('10_metric_tree').iloc[0]
+    fig,ax=plt.subplots(figsize=(14,7)); ax.set_axis_off()
+    def box(x,y,text,color=BLUE):
+        ax.text(x,y,text,ha='center',va='center',fontsize=10.5,
+            bbox=dict(boxstyle='round,pad=.6',facecolor='#F2F6FA',edgecolor=color),transform=ax.transAxes)
+    def link(x1,y1,x2,y2):
+        ax.annotate('',xy=(x2,y2),xytext=(x1,y1),xycoords='axes fraction',
+            arrowprops=dict(arrowstyle='-',color='#9AA5B1',lw=1.3))
+    box(.5,.92,f'订单数  {int(r.orders):,} 单\n去重交易 ID')
+    box(.25,.72,f'购买访客  {int(r.buyers):,} 人')
+    box(.75,.72,f'人均订单  {r.orders_per_buyer:.3f} 单 / 人')
+    box(.13,.49,f'严格顺序购买  {int(r.strict_buyers):,} 人\n{int(r.viewers):,} 浏览 × {r.cart_rate:.2%} × {r.purchase_rate:.2%}')
+    box(.42,.49,f'其他购买路径  {int(r.other_buyers):,} 人\n购买访客 − 严格路径',ORANGE)
+    box(.70,.49,f'单次购买者  {int(r.single_buyers):,} 人\n{int(r.single_buyers):,} 单')
+    box(.90,.49,f'复购者  {int(r.repeat_buyers):,} 人\n{int(r.repeat_orders):,} 单',ORANGE)
+    for line in [(.5,.86,.25,.78),(.5,.86,.75,.78),(.25,.66,.13,.56),(.25,.66,.42,.56),(.75,.66,.70,.56),(.75,.66,.90,.56)]:link(*line)
+    ax.text(.5,.26,'购买访客 = 严格路径 + 其他路径     |     人均订单 =（单次购买订单 + 复购订单）÷ 购买访客',ha='center',transform=ax.transAxes,fontsize=11)
+    ax.text(.5,.15,'全观察期 · 严格路径可跨商品、跨会话 · 其他路径含记录不完整或顺序不符合的购买',ha='center',transform=ax.transAxes,fontsize=9,color=GRAY)
+    fig.suptitle('订单数指标树',fontsize=17,y=.98)
+    return fig
+
+def metric_tree_weekly():
+    frame=table('11_metric_tree_weekly'); frame=frame[frame.comparable==True]
+    cols=['traffic_effect','cart_rate_effect','purchase_rate_effect','other_buyer_effect','repeat_share_effect','repeat_frequency_effect']
+    labels=['浏览访客','浏览→加购率','加购→购买率','其他购买访客','复购者占比','复购者额外订单']
+    fig,ax=plt.subplots(figsize=(14,6));x=np.arange(len(frame)); positive=np.zeros(len(x));negative=np.zeros(len(x))
+    for col,label,color in zip(cols,labels,['#285D92','#54A0A1','#79B77C','#D2A149','#C57933','#9D6AA8']):
+        values=frame[col].to_numpy();bottom=np.where(values>=0,positive,negative)
+        ax.bar(x,values,bottom=bottom,label=label,color=color,width=.72)
+        positive+=np.maximum(values,0);negative+=np.minimum(values,0)
+    ax.plot(x,frame.order_change,'ko-',lw=1.3,ms=3,label='订单变化')
+    ax.axhline(0,color=GRAY,lw=.8);ax.set_xticks(x,frame.week_start.str[5:],rotation=45,ha='right')
+    ax.set_ylabel('相对前周的订单变化（单）');ax.set_title('周订单变化：连乘替代分解',loc='left',pad=12)
+    ax.legend(ncol=4,loc='upper center',bbox_to_anchor=(.5,-.22),frameon=False,fontsize=9)
+    fig.text(.08,.015,'完整 UTC 自然周；因素依次替换，结果受替换顺序影响；贡献是算术分解，不代表因果',fontsize=9,color=GRAY)
+    fig.subplots_adjust(left=.08,right=.98,top=.90,bottom=.32)
+    return fig
+
+PLOTS={'funnel':funnel,'sessions':sessions,'retention':retention,'products':products,'metric_tree':metric_tree,'metric_tree_weekly':metric_tree_weekly}
 def build_figures():
     style();folder=ROOT/'results/figures';folder.mkdir(exist_ok=True)
     for name,function in PLOTS.items():
         fig=function();fig.savefig(folder/f'{name}.png',dpi=180);fig.savefig(folder/f'{name}.svg');plt.close(fig)
-    print('Saved four PNG/SVG figures')
+    print('Saved PNG/SVG figures')
 if __name__=='__main__':build_figures()

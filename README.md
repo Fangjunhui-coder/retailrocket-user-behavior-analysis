@@ -42,6 +42,14 @@
 
 按去重浏览访客数选择前八个商品展示，另提供浏览访客不少于 1,000 的十二个商品的完整结果。没有价格、库存或页面字段，因此不会把购买差异直接归因于某一因素。
 
+## 指标体系
+
+以去重交易 ID 代表订单数，拆解为购买访客与人均订单；购买访客再拆严格路径和其他购买路径。全期得到 **17,672 单 = 11,719 位购买访客 × 1.508 单/人**；严格路径 9,952 人，其他路径 1,767 人。复购者 1,063 人贡献 7,016 单。订单是交易事件代理，没有价格字段，因此不计算 GMV。详见[指标体系与周度分解](docs/metric-system.md)。
+
+![订单指标树](results/figures/metric_tree.png)
+
+[周度因素分解图](results/figures/metric_tree_weekly.png)使用完整 UTC 自然周和连乘替代法；算术贡献不代表因果。
+
 ## 数据与方法
 
 - **来源**：[RetailRocket 在 Kaggle 发布的电商数据](https://www.kaggle.com/datasets/retailrocket/ecommerce-dataset)，仅使用 `events.csv`。
@@ -81,6 +89,8 @@ python src/download_data.py
 python src/run_analysis.py
 python src/validate.py
 python src/plot_results.py
+python -m pip install pytest
+python -m pytest -q
 ```
 
 原始数据不上传到 Git；来源、下载方式和许可见 [DATA_SOURCE.md](DATA_SOURCE.md)。下载失败时可手动取得 `events.csv`，再运行：
@@ -106,13 +116,13 @@ jupyter lab notebooks/retailrocket_analysis.ipynb
 ├── DATA_SOURCE.md
 ├── requirements.txt
 ├── data/README.md                # 原始数据获取方式
-├── docs/analysis-report.pdf       # 完整分析报告
+├── docs/                         # 分析报告与指标体系说明
 ├── notebooks/                    # 已执行 Notebook
-├── sql/                          # 十份数据准备与分析查询
+├── sql/                          # 数据准备与分析查询（含指标树）
 ├── src/                          # 下载、执行、可视化及验证
 └── results/
-    ├── figures/                  # 四组 PNG / SVG 图表
-    ├── tables/                   # CSV 分析结果
+    ├── figures/                  # 图表 PNG / SVG
+    ├── tables/                   # CSV 分析结果（含全期和周度指标树）
     ├── provenance.json           # 执行与查询记录
     ├── source.json               # 来源与数据校验和
     └── validation.json           # 独立核对记录

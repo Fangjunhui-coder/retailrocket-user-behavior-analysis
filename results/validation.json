@@ -8,6 +8,26 @@
     "immature cohort exclusion"
   ],
   "independent_pandas": {
+    "metric_tree": {
+      "overall": {
+        "viewers": 1404179,
+        "cart_visitors": 32934,
+        "strict_buyers": 9952,
+        "buyers": 11719,
+        "other_buyers": 1767,
+        "single_buyers": 10656,
+        "repeat_buyers": 1063,
+        "repeat_orders": 7016,
+        "orders": 17672,
+        "cart_rate": 0.0234542747042934,
+        "purchase_rate": 0.3021801178113803,
+        "orders_per_buyer": 1.5079784964587422,
+        "repeat_share": 0.09070739824217083,
+        "repeat_extra_orders": 5.600188146754468
+      },
+      "weeks_checked": 21,
+      "comparable_weeks_checked": 18
+    },
     "raw_rows": 2756101,
     "clean_rows": 2755641,
     "funnel": [
