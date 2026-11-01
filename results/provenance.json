@@ -1,12 +1,12 @@
 {
   "source_url": "https://www.kaggle.com/datasets/retailrocket/ecommerce-dataset",
   "download_url": "https://www.kaggle.com/api/v1/datasets/download/retailrocket/ecommerce-dataset",
-  "input_file": "events.csv.gz",
-  "input_sha256": "01c7bbc9c4d7b6914b64359a9cbc4f32378be7ee8a36730f4d3dc12568201331",
-  "input_bytes": 33590667,
-  "executed_at_utc": "2026-10-22T02:23:09.220103+00:00",
-  "python": "3.12.14",
-  "duckdb": "1.5.6",
+  "input_file": "data/events.csv.gz",
+  "input_sha256": "87cf05b325509ae30b87abc2a95b4a1e0ad7babdf2af7bf585d94d641ddea1ae",
+  "input_bytes": 33266451,
+  "executed_at_utc": "2026-10-31T14:31:15.617618+00:00",
+  "python": "3.9.6",
+  "duckdb": "1.4.5",
   "timezone": "UTC",
   "queries": [
     {
@@ -62,8 +62,19 @@
       "sha256": "da7c7a1fb76e11177ba1f93e0c1d87990c5723daedf1db4743f5d95a1647e8d6",
       "result_rows": 2,
       "output": "results/tables/09_activity_sensitivity.csv"
+    },
+    {
+      "sql": "sql/10_metric_tree.sql",
+      "output": "results/tables/11_metric_tree_weekly.csv",
+      "result_rows": 21
+    },
+    {
+      "sql": "sql/10_metric_tree.sql",
+      "sha256": "a5dae0e1c6ba037794b393dd145806393b5375cf11d9535944ea41a459c1d14f",
+      "result_rows": 1,
+      "output": "results/tables/10_metric_tree.csv"
     }
   ],
-  "checks": "reconciliation; nested funnel; retention bounds; week-zero retention",
-  "seconds": 3.08
+  "checks": "quality; nested funnel; retention bounds; metric-tree identities and weekly decomposition; transaction ID uniqueness",
+  "seconds": 2.43
 }
